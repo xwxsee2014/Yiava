@@ -1,7 +1,7 @@
 package com.yiava.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 /**
  * Data Transfer Object for Content create/update requests

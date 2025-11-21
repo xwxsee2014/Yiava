@@ -44,7 +44,7 @@ public class ContentService {
         }
 
         if (contentText.length() > 5000) {
-            logger.warn("Attempt to create content exceeding length limit: {} characters", contentText.length());
+            logger.warn("Attempt to create content exceeding length limit: {} characters", Integer.valueOf(contentText.length()));
             throw new IllegalArgumentException("Content must not exceed 5000 characters");
         }
 
@@ -122,7 +122,7 @@ public class ContentService {
         }
 
         if (newContentText.length() > 5000) {
-            logger.warn("Attempt to update content exceeding length limit: {} characters", newContentText.length());
+            logger.warn("Attempt to update content exceeding length limit: {} characters", Integer.valueOf(newContentText.length()));
             throw new IllegalArgumentException("Content must not exceed 5000 characters");
         }
 

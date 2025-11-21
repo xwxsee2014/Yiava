@@ -2,7 +2,6 @@ package com.yiava.mapper;
 
 import com.yiava.entity.Content;
 import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -11,7 +10,6 @@ import org.apache.ibatis.annotations.Select;
  * MyBatis Mapper interface for Content entity
  * Provides database operations for content records
  */
-@Mapper
 public interface ContentMapper {
 
     /**
@@ -21,7 +19,7 @@ public interface ContentMapper {
      * @return the number of rows affected
      */
     @Insert("INSERT INTO content (content) VALUES (#{content})")
-    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Content content);
 
     /**
