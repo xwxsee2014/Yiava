@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yiava.mapper.ContentMapper">
+
+    <!-- Result map for Content entity -->
+    <resultMap id="ContentResultMap" type="com.yiava.entity.Content">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"
+                jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"
+                jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- Insert content -->
+    <insert id="insert" parameterType="com.yiava.entity.Content" useGeneratedKeys="true"
+            keyProperty="id" keyColumn="id">
+        INSERT INTO content (content)
+        VALUES (#{content})
+    </insert>
+
+    <!-- Find content by ID -->
+    <select id="findById" parameterType="Long" resultMap="ContentResultMap">
+        SELECT id, content, created_at, updated_at
+        FROM content
+        WHERE id = #{id}
+    </select>
+
+    <!-- Find all content -->
+    <select id="findAll" resultMap="ContentResultMap">
+        SELECT id, content, created_at, updated_at
+        FROM content
+        ORDER BY id DESC
+    </select>
+
+    <!-- Update content by ID -->
+    <update id="updateById">
+        UPDATE content
+        SET content = #{content}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- Delete content by ID -->
+    <delete id="deleteById" parameterType="Long">
+        DELETE FROM content WHERE id = #{id}
+    </delete>
+
+    <!-- Count total content records -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM content
+    </select>
+
+    <!-- Find content with pagination -->
+    <select id="findAllWithPagination" resultMap="ContentResultMap">
+        SELECT id, content, created_at, updated_at
+        FROM content
+        ORDER BY id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

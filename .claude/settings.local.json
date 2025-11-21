@@ -1,7 +1,22 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git fetch:*)",
+      "Bash(if:*)",
+      "Bash(then pwsh -File \".specify/scripts/powershell/create-new-feature.ps1\" -Json -Number 1 -ShortName \"spring-boot-crud\" \"帮我初始化这个spring boot项目，添加logback日志和spring actuator，然后写一个test controller和mybatis相关的dao（数据库表字段就是自增id+varchar类型的content字段），test controller就是这张表的CRUD，数据库版本管理使用flyway\")",
+      "Bash(else:*)",
+      "Bash(fi)",
+      "Bash(git checkout:*)",
+      "Bash(for:*)",
+      "Bash(do:*)",
+      "Bash(done)",
+      "Bash(git rev-parse:*)",
+      "Bash(test:*)",
+      "Bash(tree:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(timeout 60 bash -c:*)",
+      "Bash(mvn clean package:*)"
     ],
     "deny": [],
     "ask": []

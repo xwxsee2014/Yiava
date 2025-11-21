@@ -174,9 +174,10 @@ server:
 ## Tips for Development
 
 1. **Hot Reload**: Use Spring Boot DevTools for automatic restart on code changes
-2. **Database Migration**: Consider adding Flyway or Liquibase for schema versioning
+2. **Database Migration**: Flyway is configured for schema versioning - migration scripts in `src/main/resources/db/migration/`
 3. **API Documentation**: SpringDoc OpenAPI can be integrated for API docs
-4. **Logging**: Configure logging levels in `application.yml` for debugging
+4. **Logging**: Logback is configured for structured logging - adjust levels in `logback.xml` or `application.yml`
+5. **Health Checks**: Spring Actuator endpoints available at `/actuator/health`, `/actuator/info`, `/actuator/metrics`
 
 ## Research & Testing Focus
 

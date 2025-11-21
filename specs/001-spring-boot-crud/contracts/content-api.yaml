@@ -1,0 +1,310 @@
+openapi: 3.0.3
+info:
+  title: Content Management API
+  description: |
+    REST API for CRUD operations on content records.
+    Provides endpoints to create, read, update, and delete content entries.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@yiava.example
+
+servers:
+  - url: /api
+    description: Base URL for the Content API
+
+paths:
+  /content:
+    get:
+      summary: Get all content records
+      description: Retrieve a list of all content records
+      operationId: getAllContent
+      tags:
+        - Content
+      responses:
+        '200':
+          description: Successfully retrieved list of content records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContentResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create a new content record
+      description: Create a new content record with the provided content text
+      operationId: createContent
+      tags:
+        - Content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentRequest'
+      responses:
+        '201':
+          description: Successfully created content record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentResponse'
+        '400':
+          description: Invalid input (empty or missing content)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /content/{id}:
+    get:
+      summary: Get content record by ID
+      description: Retrieve a specific content record by its unique identifier
+      operationId: getContentById
+      tags:
+        - Content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the content record
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved content record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentResponse'
+        '404':
+          description: Content record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      summary: Update content record
+      description: Update an existing content record with new content text
+      operationId: updateContent
+      tags:
+        - Content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the content record to update
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentRequest'
+      responses:
+        '200':
+          description: Successfully updated content record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentResponse'
+        '400':
+          description: Invalid input (empty or missing content)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Content record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete content record
+      description: Delete a content record by its unique identifier
+      operationId: deleteContent
+      tags:
+        - Content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the content record to delete
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '204':
+          description: Successfully deleted content record
+        '404':
+          description: Content record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ContentRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: The text content to be stored
+          minLength: 1
+          maxLength: 5000
+          example: "This is a sample content entry"
+      additionalProperties: false
+
+    ContentResponse:
+      type: object
+      required:
+        - id
+        - content
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier of the content record
+          example: 1
+        content:
+          type: string
+          description: The text content
+          example: "This is a sample content entry"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the record was created
+          example: "2025-11-21T10:30:00"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the record was last updated
+          example: "2025-11-21T10:30:00"
+      additionalProperties: false
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when the error occurred
+          example: "2025-11-21T10:30:00"
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+          example: 404
+        error:
+          type: string
+          description: HTTP status reason phrase
+          example: "Not Found"
+        message:
+          type: string
+          description: Detailed error message
+          example: "Content record not found"
+        path:
+          type: string
+          description: Request path that caused the error
+          example: "/api/content/123"
+      additionalProperties: false
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - errors
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Time when the error occurred
+          example: "2025-11-21T10:30:00"
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+          example: 400
+        error:
+          type: string
+          description: HTTP status reason phrase
+          example: "Bad Request"
+        message:
+          type: string
+          description: General error message
+          example: "Validation failed"
+        errors:
+          type: array
+          description: List of validation errors
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Name of the field that failed validation
+                example: "content"
+              message:
+                type: string
+                description: Validation error message
+                example: "Content cannot be blank"
+            required:
+              - field
+              - message
+      additionalProperties: false
+
+tags:
+  - name: Content
+    description: Content management operations

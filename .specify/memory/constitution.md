@@ -1,50 +1,78 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report - Constitution Update
+========================================
+
+Version change: N/A → 1.0.0
+Version bump type: MAJOR (initial ratification)
+Ratification date: 2025-11-21
+
+New Core Principles Added (I-VI):
+- I. Research-First Development: Emphasizes documented experiments with clear goals
+- II. Java Best Practices: Modern Java 17 patterns (records, sealed classes, Optional, streams)
+- III. Layered Architecture: Controller/Service/Mapper separation (NON-NEGOTIABLE)
+- IV. Testing Discipline: Unit, integration, and contract testing requirements
+- V. Documentation & Knowledge Sharing: CLAUDE.md as living documentation
+- VI. Simplicity & YAGNI: Avoid speculative design, justify complexity
+
+New Sections Added:
+- Technology Standards: JDK 17, Spring Boot 2.7, MyBatis, Maven specifications
+- Development Workflow: Branching, Maven commands, PR requirements, code review process
+- Governance: Amendment procedures, version tracking, compliance verification
+
+Removed Sections: N/A (initial creation)
+
+Templates Updated:
+✅ .specify/templates/plan-template.md - Updated Constitution Check with 6 concrete gates
+✅ .specify/templates/spec-template.md - No changes required (generic)
+✅ .specify/templates/tasks-template.md - No changes required (generic)
+✅ .specify/templates/checklist-template.md - No changes required (generic)
+
+Dependent Templates Status:
+✅ .claude/commands/speckit.analyze.md - Already references constitution (no changes needed)
+✅ .claude/commands/speckit.plan.md - Already references constitution (no changes needed)
+
+Follow-up TODOs: None
+
+Validation Results:
+✅ No remaining bracket tokens
+✅ Version line matches report
+✅ Dates in ISO format (2025-11-21)
+✅ All principles use declarative language with MUST/SHOULD rationale
+✅ Architecture alignment verified across plan-template
+-->
+
+# Yiava Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Research-First Development
+Every experiment MUST be documented with purpose, expected outcomes, and learnings. New features start as isolated research modules. Clear research questions required before implementation - no experimentation without stated learning goals. Results and insights MUST be captured for future reference.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Java Best Practices
+Follow modern Java 17 patterns and idioms: records for data carriers, sealed classes for controlled inheritance, pattern matching where applicable, Optional for null-safety, streams for data processing. Use Lombok judiciously and only with explicit justification. Prefer immutability and functional programming patterns.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Layered Architecture (NON-NEGOTIABLE)
+Controllers handle HTTP concerns only - no business logic in controller layer. Services contain business logic, workflows, and transaction management. Mappers handle SQL and data persistence. DTOs separate API contracts from entities. Clear boundaries between layers MUST be maintained to prevent coupling.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Testing Discipline
+Unit tests mandatory for all business logic in services. Integration tests required for MyBatis mappers and database interactions. Test structure mirrors source: tests/unit/, tests/integration/, tests/contract/ following Maven conventions. Property-based testing encouraged for complex domain logic.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Documentation & Knowledge Sharing
+CLAUDE.md serves as living documentation for project conventions. All experiments MUST include README or inline documentation. Code comments explain complex business logic and non-obvious decisions. API documentation via SpringDoc/OpenAPI when REST endpoints added. Research findings documented in feature branches before merging.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Simplicity & YAGNI
+Start simple - implement minimum viable solution first. Avoid premature generalization and speculative design. Complexity MUST be justified with concrete evidence of need. Refactor based on actual requirements, not anticipated ones. Prefer composability over deep inheritance hierarchies.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Technology Standards
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+JDK 17 (LTS) is required for all Java code. Spring Boot 2.7 series for application framework - latest 2.x patch version. MyBatis for SQL mapping with XML-based queries preferred over annotations. Maven for build management - no Gradle. Database migrations via Flyway when schema evolution needed. Standard Maven directory structure enforced for all modules.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow
+
+Use feature branches with descriptive names. Maven commands: `mvn clean compile` for builds, `mvn test` for testing, `mvn spring-boot:run` for local development. Commit messages follow conventional format: type(scope): description. Pull requests required for main branch changes. Code review verifies architecture compliance and test coverage. Hot reload via Spring Boot DevTools enabled for development.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other development practices. Amendments require rationale, impact assessment, and migration plan for affected components. Version tracking follows semantic versioning for constitution changes: MAJOR for principle removals/redefinitions, MINOR for new principles, PATCH for clarifications. Compliance verified during code review - violations must be explicitly justified in Complexity Tracking section of implementation plans. Use CLAUDE.md for runtime development guidance and command references.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-11-21 | **Last Amended**: 2025-11-21
