@@ -71,7 +71,7 @@
     <logger name="org.springframework.web" level="DEBUG"/>
 
     <!-- SQL logging -->
-    <logger name="com.yiava.mapper" level="DEBUG"/>
+<!--    <logger name="com.yiava.mapper" level="DEBUG"/>-->
 
     <!-- Profile-specific configurations -->
     <springProfile name="dev">

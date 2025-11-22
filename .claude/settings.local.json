@@ -16,7 +16,10 @@
       "Bash(tree:*)",
       "Bash(mvn clean compile:*)",
       "Bash(timeout 60 bash -c:*)",
-      "Bash(mvn clean package:*)"
+      "Bash(mvn clean package:*)",
+      "Bash(mvn compile:*)",
+      "Bash(timeout 30:*)",
+      "Bash(timeout 20 java:*)"
     ],
     "deny": [],
     "ask": []
