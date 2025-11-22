@@ -1,10 +1,7 @@
 package com.yiava.mapper;
 
 import com.yiava.entity.Content;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 /**
  * MyBatis Mapper interface for Content entity
@@ -18,8 +15,6 @@ public interface ContentMapper {
      * @param content the content entity to insert
      * @return the number of rows affected
      */
-    @Insert("INSERT INTO content (content) VALUES (#{content})")
-    @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Content content);
 
     /**
@@ -28,7 +23,6 @@ public interface ContentMapper {
      * @param id the content ID
      * @return the content entity if found, null otherwise
      */
-    @Select("SELECT id, content, created_at, updated_at FROM content WHERE id = #{id}")
     Content findById(@Param("id") Long id);
 
     /**
@@ -36,7 +30,6 @@ public interface ContentMapper {
      *
      * @return list of all content records
      */
-    @Select("SELECT id, content, created_at, updated_at FROM content ORDER BY id DESC")
     java.util.List<Content> findAll();
 
     /**
@@ -61,6 +54,5 @@ public interface ContentMapper {
      *
      * @return the total count
      */
-    @Select("SELECT COUNT(*) FROM content")
     int count();
 }

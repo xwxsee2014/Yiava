@@ -1,6 +1,9 @@
 spring:
   application:
     name: yiava
+  # Profile-specific configurations
+  profiles:
+    active: dev
 
   # Flyway Configuration
   flyway:
@@ -14,8 +17,8 @@ spring:
   jackson:
     serialization:
       indent-output: true
-      date-format: yyyy-MM-dd HH:mm:ss
-      time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
     deserialization:
       fail-on-unknown-properties: false
 
