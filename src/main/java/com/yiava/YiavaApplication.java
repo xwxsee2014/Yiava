@@ -34,9 +34,9 @@ public class YiavaApplication {
                 ║              Spring Boot CRUD API Started                    ║
                 ║                                                              ║
                 ║  • Server running on: http://localhost:8080/api              ║
-                ║  • Actuator endpoints: http://localhost:8080/actuator        ║
-                ║  • API Documentation: http://localhost:8080/swagger-ui.html  ║
-                ║  • Druid Console: http://localhost:8080/druid/               ║
+                ║  • Actuator endpoints: http://localhost:8080/api/actuator        ║
+                ║  • API Documentation: http://localhost:8080/api/swagger-ui.html  ║
+                ║  • Druid Console: http://localhost:8080/api/druid/               ║
                 ╚══════════════════════════════════════════════════════════════╝
                 """);
     }
