@@ -31,7 +31,14 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**Gates derived from Yiava Constitution principles:**
+
+- [ ] **Research-First**: Research question, expected outcomes, and success criteria documented
+- [ ] **Java Best Practices**: Modern Java 17 patterns identified (records, Optional, streams, etc.)
+- [ ] **Layered Architecture**: Component separation defined (Controller/Service/Mapper layers)
+- [ ] **Testing Strategy**: Test plan established - unit, integration, and contract tests identified
+- [ ] **Documentation Plan**: Documentation approach defined (CLAUDE.md updates, API docs, etc.)
+- [ ] **Simplicity**: No speculative design - complexity justification documented if required
 
 ## Project Structure
 
