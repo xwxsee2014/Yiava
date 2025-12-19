@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yiava.mapper.DocumentMapper">
+
+    <!-- Result map for Document entity -->
+    <resultMap id="DocumentResultMap" type="com.yiava.entity.Document">
+        <id property="id" column="id"/>
+        <result property="originalFilename" column="original_filename"/>
+        <result property="fileExtension" column="file_extension"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="uploadTime" column="upload_time" jdbcType="TIMESTAMP"/>
+        <result property="pageCount" column="page_count"/>
+        <result property="storagePath" column="storage_path"/>
+        <result property="status" column="status"/>
+        <result property="errorMessage" column="error_message"/>
+    </resultMap>
+
+    <!-- Complex queries can be added here if needed -->
+    <select id="selectWithJobStatus" resultMap="DocumentResultMap">
+        SELECT d.*, cj.status as job_status
+        FROM document d
+        LEFT JOIN conversion_job cj ON d.id = cj.document_id
+        WHERE d.id = #{id}
+    </select>
+
+</mapper>

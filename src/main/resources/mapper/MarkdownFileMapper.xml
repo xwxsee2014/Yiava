@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yiava.mapper.MarkdownFileMapper">
+
+    <!-- Result map for MarkdownFile entity -->
+    <resultMap id="MarkdownFileResultMap" type="com.yiava.entity.MarkdownFile">
+        <id property="id" column="id"/>
+        <result property="documentId" column="document_id"/>
+        <result property="pageNumber" column="page_number"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="filename" column="filename"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- Get all files for a document with pagination -->
+    <select id="selectByDocumentIdWithPagination" resultMap="MarkdownFileResultMap">
+        SELECT * FROM markdown_file
+        WHERE document_id = #{documentId}
+        ORDER BY page_number ASC
+        <if test="offset != null and limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <!-- Insert multiple files in batch -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO markdown_file (document_id, page_number, file_path, file_size, filename)
+        VALUES
+        <foreach collection="list" item="file" separator=",">
+            (#{file.documentId}, #{file.pageNumber}, #{file.filePath}, #{file.fileSize}, #{file.filename})
+        </foreach>
+    </insert>
+
+</mapper>

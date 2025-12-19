@@ -1,0 +1,479 @@
+openapi: 3.0.3
+info:
+  title: Document Query API
+  description: |
+    API for querying document conversion history and metadata.
+
+    Provides endpoints to retrieve information about previously uploaded documents
+    and their conversion results. Supports searching, filtering, and pagination.
+
+    ## Features
+    - Query documents by ID, filename, or date range
+    - Search conversion history
+    - Retrieve document metadata and conversion status
+    - Download previous conversion results
+    - Pagination support for large result sets
+
+  version: 1.0.0
+  contact:
+    name: Yiava API Support
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+
+paths:
+  /documents:
+    get:
+      summary: List documents with optional filtering
+      description: |
+        Retrieves a paginated list of uploaded documents.
+
+        Supports filtering by upload date range, filename, and conversion status.
+        Results are ordered by upload time (newest first).
+
+      operationId: listDocuments
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-based indexing)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+
+        - name: size
+          in: query
+          description: Number of documents per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+
+        - name: startDate
+          in: query
+          description: Start date for filtering (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+            example: "2025-11-01T00:00:00Z"
+
+        - name: endDate
+          in: query
+          description: End date for filtering (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+            example: "2025-11-30T23:59:59Z"
+
+        - name: status
+          in: query
+          description: Filter by conversion status
+          schema:
+            type: string
+            enum: [UPLOADED, PROCESSING, COMPLETED, FAILED]
+            example: "COMPLETED"
+
+        - name: filename
+          in: query
+          description: Search by filename (case-insensitive partial match)
+          schema:
+            type: string
+            example: "report"
+
+      responses:
+        '200':
+          description: List of documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+              example:
+                content:
+                  - id: 12345
+                    originalFilename: "quarterly-report.docx"
+                    fileExtension: "docx"
+                    fileSize: 2048576
+                    pageCount: 15
+                    uploadTime: "2025-11-23T10:30:00Z"
+                    status: "COMPLETED"
+                    markdownFileCount: 15
+                    latestConversionTime: "2025-11-23T10:30:18Z"
+                  - id: 12346
+                    originalFilename: "meeting-notes.doc"
+                    fileExtension: "doc"
+                    fileSize: 524288
+                    pageCount: 3
+                    uploadTime: "2025-11-22T15:45:00Z"
+                    status: "COMPLETED"
+                    markdownFileCount: 3
+                    latestConversionTime: "2025-11-22T15:45:12Z"
+                totalElements: 25
+                totalPages: 2
+                currentPage: 0
+                pageSize: 20
+
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "INVALID_PARAMETERS"
+                message: "Invalid date range: startDate must be before endDate"
+
+  /documents/{id}:
+    get:
+      summary: Get document details
+      description: |
+        Retrieves detailed information about a specific document including
+        all conversion jobs and markdown file references.
+
+      operationId: getDocumentById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Document ID
+          schema:
+            type: integer
+            example: 12345
+
+      responses:
+        '200':
+          description: Document details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetails'
+              example:
+                id: 12345
+                originalFilename: "quarterly-report.docx"
+                fileExtension: "docx"
+                fileSize: 2048576
+                pageCount: 15
+                uploadTime: "2025-11-23T10:30:00Z"
+                status: "COMPLETED"
+                storagePath: "/storage/documents/2025/11/12345/"
+                markdownFiles:
+                  - pageNumber: 1
+                    filename: "quarterly-report-page-1.md"
+                    fileSize: 15360
+                    downloadUrl: "/api/documents/12345/files/1"
+                  - pageNumber: 2
+                    filename: "quarterly-report-page-2.md"
+                    fileSize: 18432
+                    downloadUrl: "/api/documents/12345/files/2"
+                conversionJobs:
+                  - jobId: "job-67890"
+                    status: "COMPLETED"
+                    progressPercentage: 100
+                    currentPage: 15
+                    totalPages: 15
+                    startedAt: "2025-11-23T10:30:00Z"
+                    completedAt: "2025-11-23T10:30:18Z"
+                  - jobId: "job-67889"
+                    status: "FAILED"
+                    errorMessage: "Document appears to be corrupted"
+                    startedAt: "2025-11-23T09:15:00Z"
+                    completedAt: "2025-11-23T09:15:05Z"
+
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "DOCUMENT_NOT_FOUND"
+                message: "Document with ID 12345 not found"
+
+  /documents/{id}/files/{pageNumber}:
+    get:
+      summary: Download specific markdown file
+      description: |
+        Downloads a specific markdown file (one page) from a converted document.
+
+      operationId: downloadMarkdownFile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Document ID
+          schema:
+            type: integer
+            example: 12345
+
+        - name: pageNumber
+          in: path
+          required: true
+          description: Page number (1-based indexing)
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+
+      responses:
+        '200':
+          description: Markdown file content
+          content:
+            text/markdown:
+              schema:
+                type: string
+              example: |
+                # Quarterly Report
+
+                ## Summary
+                This quarter showed significant growth...
+
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "FILE_NOT_FOUND"
+                message: "Markdown file for document 12345, page 1 not found"
+
+  /documents/{id}/download:
+    get:
+      summary: Download all markdown files as ZIP
+      description: |
+        Downloads all converted markdown files for a document as a single ZIP archive.
+
+      operationId: downloadAllMarkdownFiles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Document ID
+          schema:
+            type: integer
+            example: 12345
+
+      responses:
+        '200':
+          description: ZIP archive of all markdown files
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+              headers:
+                Content-Disposition:
+                  schema:
+                    type: string
+                  example: 'attachment; filename="quarterly-report-markdown.zip"'
+
+        '404':
+          description: Document not found or not converted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "CONVERSION_NOT_FOUND"
+                message: "No converted files found for document 12345"
+
+components:
+  schemas:
+    DocumentSummary:
+      type: object
+      required:
+        - id
+        - originalFilename
+        - fileExtension
+        - fileSize
+        - pageCount
+        - uploadTime
+        - status
+        - markdownFileCount
+      properties:
+        id:
+          type: integer
+          description: Document ID
+          example: 12345
+        originalFilename:
+          type: string
+          description: Original uploaded filename
+          example: "quarterly-report.docx"
+        fileExtension:
+          type: string
+          enum: [doc, docx]
+          description: File extension
+          example: "docx"
+        fileSize:
+          type: integer
+          description: File size in bytes
+          example: 2048576
+        pageCount:
+          type: integer
+          description: Number of pages in document
+          example: 15
+        uploadTime:
+          type: string
+          format: date-time
+          description: When document was uploaded
+          example: "2025-11-23T10:30:00Z"
+        status:
+          type: string
+          enum: [UPLOADED, PROCESSING, COMPLETED, FAILED]
+          description: Current conversion status
+          example: "COMPLETED"
+        markdownFileCount:
+          type: integer
+          description: Number of converted markdown files
+          example: 15
+        latestConversionTime:
+          type: string
+          format: date-time
+          description: When conversion was last attempted/completed
+          example: "2025-11-23T10:30:18Z"
+
+    DocumentListResponse:
+      type: object
+      required:
+        - content
+        - totalElements
+        - totalPages
+        - currentPage
+        - pageSize
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentSummary'
+        totalElements:
+          type: integer
+          description: Total number of documents matching the query
+          example: 25
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 2
+        currentPage:
+          type: integer
+          description: Current page index (0-based)
+          example: 0
+        pageSize:
+          type: integer
+          description: Number of items per page
+          example: 20
+
+    MarkdownFile:
+      type: object
+      required:
+        - pageNumber
+        - filename
+        - fileSize
+        - downloadUrl
+      properties:
+        pageNumber:
+          type: integer
+          description: Page number (1-based)
+          example: 1
+        filename:
+          type: string
+          description: Markdown filename
+          example: "quarterly-report-page-1.md"
+        fileSize:
+          type: integer
+          description: File size in bytes
+          example: 15360
+        downloadUrl:
+          type: string
+          description: URL to download this specific file
+          example: "/api/documents/12345/files/1"
+
+    ConversionJobSummary:
+      type: object
+      required:
+        - jobId
+        - status
+        - startedAt
+      properties:
+        jobId:
+          type: string
+          description: Job identifier
+          example: "job-67890"
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, COMPLETED, FAILED, CANCELLED]
+          description: Job status
+          example: "COMPLETED"
+        progressPercentage:
+          type: integer
+          description: Final progress percentage (only for completed jobs)
+          example: 100
+        currentPage:
+          type: integer
+          description: Current or final page processed
+          example: 15
+        totalPages:
+          type: integer
+          description: Total pages in document
+          example: 15
+        startedAt:
+          type: string
+          format: date-time
+          description: When job started
+          example: "2025-11-23T10:30:00Z"
+        completedAt:
+          type: string
+          format: date-time
+          description: When job completed (only if completed/failed/cancelled)
+          example: "2025-11-23T10:30:18Z"
+        errorMessage:
+          type: string
+          description: Error details (only if failed)
+          example: "Document appears to be corrupted"
+
+    DocumentDetails:
+      allOf:
+        - $ref: '#/components/schemas/DocumentSummary'
+        - type: object
+          required:
+            - storagePath
+            - markdownFiles
+            - conversionJobs
+          properties:
+            storagePath:
+              type: string
+              description: Path where original file is stored
+              example: "/storage/documents/2025/11/12345/"
+            markdownFiles:
+              type: array
+              items:
+                $ref: '#/components/schemas/MarkdownFile'
+              description: List of all converted markdown files
+            conversionJobs:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConversionJobSummary'
+              description: All conversion jobs for this document (including failed attempts)
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code
+          example: "DOCUMENT_NOT_FOUND"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Document with ID 12345 not found"
+        details:
+          type: object
+          description: Additional error context (optional)
+          example:
+            id: 12345
+            reason: "Document may have been deleted after retention period"

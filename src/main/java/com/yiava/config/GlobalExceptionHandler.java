@@ -1,5 +1,6 @@
 package com.yiava.config;
 
+import com.yiava.exception.*;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,6 +128,69 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
                 "An unexpected error occurred",
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Handle unsupported format exceptions
+     */
+    @ExceptionHandler(UnsupportedFormatException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedFormat(
+            UnsupportedFormatException ex,
+            HttpServletRequest request) {
+
+        logger.warn("Unsupported format: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
+                "Unsupported Media Type",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    /**
+     * Handle corrupted document exceptions
+     */
+    @ExceptionHandler(CorruptedDocumentException.class)
+    public ResponseEntity<ErrorResponse> handleCorruptedDocument(
+            CorruptedDocumentException ex,
+            HttpServletRequest request) {
+
+        logger.warn("Corrupted document: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle document processing exceptions
+     */
+    @ExceptionHandler(DocumentProcessingException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentProcessing(
+            DocumentProcessingException ex,
+            HttpServletRequest request) {
+
+        logger.error("Document processing error", ex);
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Processing Error",
+                ex.getMessage(),
                 request.getRequestURI()
         );
 

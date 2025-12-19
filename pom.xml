@@ -31,6 +31,7 @@
         <flyway.version>11.16.0</flyway.version>
         <springdoc.version>1.8.0</springdoc.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <poi.version>5.4.1</poi.version>
     </properties>
 
     <dependencies>
@@ -99,6 +100,25 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>${springdoc.version}</version>
+        </dependency>
+
+        <!-- Apache POI for Document Processing -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>${poi.version}</version>
         </dependency>
 
         <!-- Testing -->

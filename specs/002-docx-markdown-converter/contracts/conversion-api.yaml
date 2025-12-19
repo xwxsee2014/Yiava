@@ -1,0 +1,395 @@
+openapi: 3.0.3
+info:
+  title: Document Conversion API
+  description: |
+    API for converting DOC/DOCX documents to markdown format.
+
+    Each page of the source document is converted to a separate markdown file.
+    The system supports real-time progress tracking for large documents.
+
+    ## Features
+    - Upload and convert DOC/DOCX documents
+    - Real-time progress tracking
+    - Download converted markdown files
+    - Automatic header/footer removal
+
+  version: 1.0.0
+  contact:
+    name: Yiava API Support
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+
+paths:
+  /conversion/upload:
+    post:
+      summary: Upload and convert a document
+      description: |
+        Uploads a DOC or DOCX file and starts conversion to markdown.
+        Returns immediately with a job ID for tracking progress.
+
+        The conversion runs asynchronously. Use the job ID to check progress
+        and download results.
+
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: |
+                    DOC or DOCX file to convert.
+                    Maximum file size: 50MB.
+                    Password-protected files will be rejected.
+
+      responses:
+        '200':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+              example:
+                documentId: 12345
+                jobId: job-67890
+                status: "PROCESSING"
+                message: "Document uploaded successfully. Conversion in progress."
+                estimatedTimeSeconds: 15
+
+        '400':
+          description: Invalid file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "VALIDATION_ERROR"
+                message: "Unsupported file format. Only DOC and DOCX files are allowed."
+
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "FILE_TOO_LARGE"
+                message: "File size exceeds maximum allowed size of 50MB."
+
+        '422':
+          description: Unprocessable document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "INVALID_DOCUMENT"
+                message: "Document appears to be corrupted or password-protected."
+
+  /conversion/{jobId}/status:
+    get:
+      summary: Get conversion progress
+      description: |
+        Retrieves the current status and progress of a conversion job.
+
+        Returns progress as a percentage and current page being processed.
+        For documents with 10+ pages, this endpoint provides real-time updates.
+
+      operationId: getConversionStatus
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Job ID returned from upload endpoint
+          schema:
+            type: string
+            example: "job-67890"
+
+      responses:
+        '200':
+          description: Conversion status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionStatus'
+              example:
+                jobId: "job-67890"
+                documentId: 12345
+                status: "IN_PROGRESS"
+                progressPercentage: 45
+                currentPage: 5
+                totalPages: 11
+                startedAt: "2025-11-23T10:30:00Z"
+                estimatedTimeRemainingSeconds: 8
+
+        '202':
+          description: Conversion completed, download available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionStatus'
+              example:
+                jobId: "job-67890"
+                documentId: 12345
+                status: "COMPLETED"
+                progressPercentage: 100
+                currentPage: 11
+                totalPages: 11
+                startedAt: "2025-11-23T10:30:00Z"
+                completedAt: "2025-11-23T10:30:18Z"
+                downloadUrl: "/api/conversion/job-67890/download"
+
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "JOB_NOT_FOUND"
+                message: "Conversion job with ID 'job-67890' not found."
+
+        '500':
+          description: Conversion failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "CONVERSION_FAILED"
+                message: "Unable to parse document. The file may be corrupted."
+
+  /conversion/{jobId}/download:
+    get:
+      summary: Download converted markdown files
+      description: |
+        Downloads the converted markdown files as a ZIP archive.
+
+        Each page of the original document is converted to a separate markdown file.
+        All files are packaged into a single ZIP for easy download.
+
+      operationId: downloadConvertedFiles
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Job ID of completed conversion
+          schema:
+            type: string
+            example: "job-67890"
+
+      responses:
+        '200':
+          description: ZIP archive of markdown files
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+              headers:
+                Content-Disposition:
+                  schema:
+                    type: string
+                  example: 'attachment; filename="document-page-files.zip"'
+
+        '202':
+          description: Conversion still in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "CONVERSION_IN_PROGRESS"
+                message: "Conversion is still in progress. Please wait for completion."
+
+        '404':
+          description: Job not found or conversion failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "CONVERSION_NOT_FOUND"
+                message: "No completed conversion found for job ID 'job-67890'."
+
+  /conversion/stream/{jobId}:
+    get:
+      summary: Stream conversion progress (Server-Sent Events)
+      description: |
+        Establishes a Server-Sent Events (SSE) connection for real-time progress updates.
+
+        Recommended for large documents (10+ pages) to receive live progress updates
+        without polling. The stream will close when conversion completes or fails.
+
+      operationId: streamProgress
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Job ID returned from upload endpoint
+          schema:
+            type: string
+            example: "job-67890"
+
+      responses:
+        '200':
+          description: SSE stream of progress updates
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              example: |
+                data: {"status":"IN_PROGRESS","progressPercentage":20,"currentPage":2,"totalPages":10}
+
+                data: {"status":"IN_PROGRESS","progressPercentage":40,"currentPage":4,"totalPages":10}
+
+                data: {"status":"COMPLETED","progressPercentage":100,"currentPage":10,"totalPages":10}
+
+        '404':
+          description: Job not found
+          content:
+            text/plain:
+              example: "Job not found"
+
+components:
+  schemas:
+    UploadResponse:
+      type: object
+      required:
+        - documentId
+        - jobId
+        - status
+      properties:
+        documentId:
+          type: integer
+          description: Unique identifier for the uploaded document
+          example: 12345
+        jobId:
+          type: string
+          description: Unique job ID for tracking conversion progress
+          example: "job-67890"
+        status:
+          type: string
+          enum: [PROCESSING]
+          description: Initial conversion status
+          example: "PROCESSING"
+        message:
+          type: string
+          description: Human-readable status message
+          example: "Document uploaded successfully. Conversion in progress."
+        estimatedTimeSeconds:
+          type: integer
+          description: Estimated time to complete conversion (seconds)
+          example: 15
+
+    ConversionStatus:
+      type: object
+      required:
+        - jobId
+        - documentId
+        - status
+        - progressPercentage
+        - totalPages
+      properties:
+        jobId:
+          type: string
+          description: Job identifier
+          example: "job-67890"
+        documentId:
+          type: integer
+          description: Document identifier
+          example: 12345
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, COMPLETED, FAILED]
+          description: Current conversion status
+          example: "IN_PROGRESS"
+        progressPercentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Conversion progress as percentage
+          example: 45
+        currentPage:
+          type: integer
+          minimum: 0
+          description: Current page being processed
+          example: 5
+        totalPages:
+          type: integer
+          minimum: 1
+          description: Total number of pages in document
+          example: 11
+        startedAt:
+          type: string
+          format: date-time
+          description: When conversion started
+          example: "2025-11-23T10:30:00Z"
+        completedAt:
+          type: string
+          format: date-time
+          description: When conversion completed (only if status is COMPLETED)
+          example: "2025-11-23T10:30:18Z"
+        estimatedTimeRemainingSeconds:
+          type: integer
+          description: Estimated time remaining (only if IN_PROGRESS)
+          example: 8
+        downloadUrl:
+          type: string
+          description: URL to download converted files (only if COMPLETED)
+          example: "/api/conversion/job-67890/download"
+        errorMessage:
+          type: string
+          description: Error details (only if FAILED)
+          example: "Unable to extract text from document"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Unsupported file format. Only DOC and DOCX files are allowed."
+        details:
+          type: object
+          description: Additional error context (optional)
+          example:
+            field: "file"
+            code: "UNSUPPORTED_FORMAT"
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

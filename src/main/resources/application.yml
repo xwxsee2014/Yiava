@@ -72,6 +72,12 @@ springdoc:
     show-extensions: true
     show-common-extensions: true
 
+# Storage Configuration
+yiava:
+  storage:
+    base-path: storage/documents
+    retention-days: 90
+
 # Logging Configuration
 logging:
   pattern:

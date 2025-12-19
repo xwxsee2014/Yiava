@@ -190,3 +190,17 @@ This repository is designed for experimenting with:
 - Authentication and security patterns
 
 When adding new experimental features, create separate packages or modules to keep concerns organized.
+
+---
+
+**Last updated**: 2025-11-23
+
+## Active Technologies
+
+- Java 17 + Spring Boot 2.7 + MyBatis (main)
+- Java 17 + Spring Boot 2.7 + Apache POI (002-docx-markdown-converter)
+
+## Recent Changes
+
+- 002-docx-markdown-converter: Added Java 17 + Spring Boot 2.7 + Apache POI
+- 001-spring-boot-crud: Added Java 17 + Spring Boot 2.7 + MyBatis

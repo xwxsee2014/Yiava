@@ -19,7 +19,13 @@
       "Bash(mvn clean package:*)",
       "Bash(mvn compile:*)",
       "Bash(timeout 30:*)",
-      "Bash(timeout 20 java:*)"
+      "Bash(timeout 20 java:*)",
+      "Bash(.specify/scripts/powershell/create-new-feature.ps1 -Json \"添加接口，接收用户输入的doc或者docx格式的文档，通过apache poi将文档转换为markdown，要求文档的每一页对应一个markdown文件\" -Number 1 -ShortName \"docx-markdown-converter\" \"Document Conversion Feature\")",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(git branch:*)",
+      "Bash(.specify/scripts/powershell/check-prerequisites.ps1:*)",
+      "Bash(.specify/scripts/powershell/setup-plan.ps1:*)"
     ],
     "deny": [],
     "ask": []
